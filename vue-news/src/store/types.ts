@@ -1,4 +1,6 @@
-import { CommitOptions, Store } from "vuex";
+import { Getters } from "./getters";
+import { CommitOptions, DispatchOptions, Store } from "vuex";
+import { Actions } from "./actions";
 import { Mutations } from "./mutations";
 import { RootState } from "./state";
 
@@ -10,7 +12,31 @@ type MyMutations = {
   ): ReturnType<Mutations[K]>;
 };
 
-export type MyStore = Omit<Store<RootState>, "commit"> & MyMutations;
+type MyActions = {
+  dispatch<K extends keyof Actions>(
+    key: K,
+    payload?: Parameters<Actions[K]>[1],
+    options?: DispatchOptions
+  ): ReturnType<Actions[K]>;
+};
+
+type MyGetters = {
+  getters: {
+    [K in keyof Getters]: ReturnType<Getters[K]>;
+  };
+};
+
+// MEMO: in keyof 는 맵드 타입임
+// 저것들을 다 빼서 하나하나 타입으로 등록해주겠다는 뜻이다
+// type A = keyof Getters; <<< 이런 식으로 된다는 것
+
+export type MyStore = Omit<
+  Store<RootState>,
+  "commit" | "dispatch" | "getters"
+> &
+  MyMutations &
+  MyActions &
+  MyGetters;
 
 // Omit ==> 특정 키만 빼고 나머지 값들을 갖겠다
 // const person = {
